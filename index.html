@@ -2,9 +2,111 @@
 <html>
   <head>
     <title>My First Website</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: #f8f9fa;
+        margin: 40px;
+      }
+
+      h1 {
+        margin-bottom: 0.5rem;
+      }
+
+      .chart-container {
+        margin-top: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        max-width: 600px;
+      }
+
+      .bar {
+        fill: #4f46e5;
+        transition: fill 0.2s ease;
+      }
+
+      .bar:hover {
+        fill: #3730a3;
+      }
+
+      .axis path,
+      .axis line {
+        stroke: #e5e7eb;
+      }
+
+      .axis text {
+        fill: #6b7280;
+        font-size: 12px;
+      }
+    </style>
   </head>
+
   <body>
     <h1>Hello World!</h1>
     <p>This is my very first website.</p>
+
+    <div class="chart-container">
+      <svg width="500" height="300"></svg>
+    </div>
+
+    <script>
+      const data = [
+        { name: "A", value: 1 },
+        { name: "B", value: 5 },
+        { name: "C", value: 8 },
+        { name: "D", value: 10 },
+      ];
+
+      const svg = d3.select("svg");
+      const width = +svg.attr("width");
+      const height = +svg.attr("height");
+
+      const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+      const chartWidth = width - margin.left - margin.right;
+      const chartHeight = height - margin.top - margin.bottom;
+
+      const g = svg
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3
+        .scaleBand()
+        .domain(data.map((d) => d.name))
+        .range([0, chartWidth])
+        .padding(0.3);
+
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => d.value)])
+        .nice()
+        .range([chartHeight, 0]);
+
+      g.selectAll(".bar")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", (d) => x(d.name))
+        .attr("y", (d) => y(d.value))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => chartHeight - y(d.value))
+        .attr("rx", 6);
+
+      g.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0,${chartHeight})`)
+        .call(d3.axisBottom(x));
+
+      g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5));
+    </script>
   </body>
 </html>
